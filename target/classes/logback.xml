@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>c:/temp/log/log.log</file>
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</layout>
+	</appender>
+
+	<logger name="JCFSUA.TRACE_LOGGER" additivity="false">
+		<level value="TRACE" />
+		<appender-ref ref="FILE" />
+	</logger>
+
+	<logger name="JCFSUA.ERROR_LOGGER" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="FILE" />
+	</logger>
+
+	<logger name="org.springframework" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="jcf.sua" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="jcf.iam" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="jcf.query" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+	<logger name="jcf.extproc" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="java.sql" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+	<logger name="org.springframework.security" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+
+</configuration>
