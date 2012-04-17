@@ -7,7 +7,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import jcf.data.GridData;
 import jcf.sua.exception.MciException;
+import jcf.sua.mvc.AbstractMciRequest;
 import jcf.sua.mvc.MciRequest;
 import jcf.sua.mvc.MciRequestAdapter;
 
@@ -31,12 +33,12 @@ public class SecureRequest extends MciRequestAdapter {
 		this.policyPath = "antisamy-ebay-1.4.4.xml";
 	}
 
-	public <T> T getParam(Class<T> type) {
-		return this.getParam(type, null);
-	}
-
 	public Map<String, Object> getParam() {
 		return doFilter(request.getParam());
+	}
+
+	public <T> T getParam(Class<T> type) {
+		return this.getParam(type, null);
 	}
 
 	public <T> T getParam(Class<T> type, String filter) {
@@ -67,21 +69,23 @@ public class SecureRequest extends MciRequestAdapter {
 			field.setAccessible(true);
 
 			try {
-				if(value.getClass().isAssignableFrom(String[].class)){
-					String[] temp = (String[])value;
-					for(int i = 0; i < temp.length; i++){
-						String clean = doFilter(temp[i]);
-						temp[i] = clean;
+
+				if(value != null){
+					if(value.getClass().isAssignableFrom(String[].class)){
+						String[] temp = (String[])value;
+						for(int i = 0; i < temp.length; i++){
+							String clean = doFilter(temp[i]);
+							temp[i] = clean;
+						}
+
+						value = temp;
+					}else{
+						value = doFilter((String)value);
 					}
 
-					value = temp;
-				}else{
-					value = doFilter((String)value);
-				}
-
-				if (value != null) {
 					field.set(object, value);
 				}
+
 			} catch (Exception e) {
 				throw new MciException("[AbstractMciRequest] AbstractMciRequest - " + e.getMessage(), e);
 			}

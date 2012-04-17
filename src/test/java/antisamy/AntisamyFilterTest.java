@@ -26,10 +26,13 @@ public class AntisamyFilterTest {
 	public void test_Antisamy() throws IllegalArgumentException, IllegalAccessException, SecurityException, NoSuchFieldException{
 		TweetVO expected = builder.getTweetVO();
 		SecureRequest secureRequest = new SecureRequest(getMciRequest(expected));
-		Map actual= secureRequest.getParam();
+		//Map actual= secureRequest.getParam();
+		TweetVO actual = secureRequest.getParam(TweetVO.class);
 
-		assertThat(expected.getId(), is(actual.get("id")));
-		assertThat("", is(actual.get("tweets")));
+//		assertThat(expected.getId(), is(actual.get("id")));
+//		assertThat("", is(actual.get("tweets")));
+		assertThat(expected.getId(), is(actual.getId()));
+		assertThat("", is(actual.getTweets()));
 	}
 
 	private MciRequest getMciRequest(final Object object) throws IllegalArgumentException, IllegalAccessException, SecurityException, NoSuchFieldException {
