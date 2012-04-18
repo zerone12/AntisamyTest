@@ -9,7 +9,6 @@ import java.util.Map;
 
 import jcf.data.GridData;
 import jcf.sua.exception.MciException;
-import jcf.sua.mvc.AbstractMciRequest;
 import jcf.sua.mvc.MciRequest;
 import jcf.sua.mvc.MciRequestAdapter;
 
@@ -33,15 +32,54 @@ public class SecureRequest extends MciRequestAdapter {
 		this.policyPath = "antisamy-ebay-1.4.4.xml";
 	}
 
+	public <E> E get(String datasetId, Class<E> clazz) {
+		E bean = request.get(datasetId, clazz);
+
+		Class object = bean.getClass();
+		Field[] fields = object.getDeclaredFields();
+
+		for(Field field : fields){
+			Object value = null;
+			field.setAccessible(true);
+
+			try {
+				value = field.get(bean);
+			} catch (Exception e) {
+
+			}
+
+			try {
+
+				if(value != null){
+					if(value.getClass().isAssignableFrom(String[].class)){
+						String[] temp = (String[])value;
+						for(int i = 0; i < temp.length; i++){
+							String clean = doFilter(temp[i]);
+							temp[i] = clean;
+						}
+
+						value = temp;
+					}else{
+						value = doFilter((String)value);
+					}
+
+					field.set(bean, value);
+				}
+
+			} catch (Exception e) {
+				throw new MciException("[AbstractMciRequest] AbstractMciRequest - " + e.getMessage(), e);
+			}
+		}
+
+		return bean;
+	}
+
+
 	public Map<String, Object> getParam() {
 		return doFilter(request.getParam());
 	}
 
 	public <T> T getParam(Class<T> type) {
-		return this.getParam(type, null);
-	}
-
-	public <T> T getParam(Class<T> type, String filter) {
 		T object = BeanUtils.instantiate(type);
 		Field[] fields = type.getDeclaredFields();
 
@@ -52,18 +90,6 @@ public class SecureRequest extends MciRequestAdapter {
 				value = getParamArray(field.getName());
 			} else{
 				value = getParam(field.getName());
-			}
-
-			if(StringUtils.hasText(filter))	{
-				if(!isSelectedProperty(filter, field.getName()))	{
-					continue;
-				}
-
-				if(isRequiredProperty(filter, field.getName()))	{
-					if(value == null || (value instanceof String && !StringUtils.hasText((String) value)))	{
-						throw new MciException("Column[" + field.getName() + "] 는 요청[" + filter + "] 에 의해 필수값으로 설정되었습니다.");
-					}
-				}
 			}
 
 			field.setAccessible(true);
@@ -92,6 +118,51 @@ public class SecureRequest extends MciRequestAdapter {
 		}
 
 		return object;
+	}
+
+	public <E> GridData<E> getGridData(String datasetId, Class<E> clazz) {
+		GridData<E> gridData = request.getGridData(datasetId, clazz);
+		for(int i = 0; i < gridData.size(); i++){
+			E bean = gridData.get(i);
+			Class object = bean.getClass();
+			Field[] fields = object.getDeclaredFields();
+
+			for(Field field : fields){
+				Object value = null;
+				field.setAccessible(true);
+
+				try {
+					value = field.get(bean);
+				} catch (Exception e) {
+
+				}
+
+				try {
+
+					if(value != null){
+						if(value.getClass().isAssignableFrom(String[].class)){
+							String[] temp = (String[])value;
+							for(int j = 0; j < temp.length; j++){
+								String clean = doFilter(temp[j]);
+								temp[j] = clean;
+							}
+
+							value = temp;
+						}else{
+							value = doFilter((String)value);
+						}
+
+						field.set(bean, value);
+					}
+
+				} catch (Exception e) {
+					throw new MciException("[AbstractMciRequest] AbstractMciRequest - " + e.getMessage(), e);
+				}
+			}
+
+		}
+
+		return gridData;
 	}
 
 
